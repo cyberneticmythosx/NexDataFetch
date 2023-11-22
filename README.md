@@ -18,8 +18,8 @@ Required Python libraries: 'requests', 'beautifulsoup4', 'pandas'
 Clone the Repository:
 
 ```bash
-git clone https://github.com/your_username/video-stream-downloader.git
-cd video-stream-downloader
+git clone https://github.com/CipherXenon/NexDataFetch.git
+cd NexDataFetch
 ```
 
 ### Install Dependencies:

@@ -11,6 +11,8 @@
 
 ### Requirements
 Python 3.11.6
+
+
 Required Python libraries: 'requests', 'beautifulsoup4', 'pandas'
 
 
@@ -32,12 +34,12 @@ pip install -r requirements.txt
 
 ## Download Single Video
 ```bash
-python video_downloader.py --video_url <VIDEO_URL> --video_format <VIDEO_FORMAT> --audio_format <AUDIO_FORMAT> --output_dir <OUTPUT_DIRECTORY>
+python fetcher.py --video_url <VIDEO_URL> --video_format <VIDEO_FORMAT> --audio_format <AUDIO_FORMAT> --output_dir <OUTPUT_DIRECTORY>
 ```
 
 ## Download Multiple Videos
 ```bash
-python video_downloader.py --video_url <VIDEO_URL1> <VIDEO_URL2> ... --video_format <VIDEO_FORMAT> --audio_format <AUDIO_FORMAT> --output_dir <OUTPUT_DIRECTORY>
+python fetcher.py --video_url <VIDEO_URL1> <VIDEO_URL2> ... --video_format <VIDEO_FORMAT> --audio_format <AUDIO_FORMAT> --output_dir <OUTPUT_DIRECTORY>
 ```
 
 - --video_url: URL(s) of the video(s) to be downloaded.
@@ -51,13 +53,13 @@ python video_downloader.py --video_url <VIDEO_URL1> <VIDEO_URL2> ... --video_for
 ## Download a single video:
 
 ``` bash
-python video_downloader.py --video_url https://example.com/video --video_format mp4 --audio_format mp3 --output_dir ./downloads
+python fetcher.py --video_url https://example.com/video --video_format mp4 --audio_format mp3 --output_dir ./downloads
 ```
 
 ## Download multiple videos:
 
 ``` bash
-python video_downloader.py --video_url https://example.com/video1 https://example.com/video2 --video_format mkv --audio_format m4a --output_dir ./downloads
+python fetcher.py --video_url https://example.com/video1 https://example.com/video2 --video_format mkv --audio_format m4a --output_dir ./downloads
 ```
 
 ## License

@@ -7,22 +7,26 @@ from concurrent.futures import ThreadPoolExecutor
 import subprocess
 import os
 
-# Color codes for cyberpunk-tech style
 class TerminalColors:
-    HEADER = '\033[95m'
-    CYAN = '\033[96m'
-    GREEN = '\033[92m'
-    BOLD = '\033[1m'
+    RED = '\033[91m'
+    YELLOW = '\033[93m'
     END = '\033[0m'
 
-# ASCII art banner in cyberpunk-tech style
-BANNER = '''
-{header}░█▀█░█▀▀░█░█░█▀▄░█▀█░▀█▀░█▀█░█▀▀░█▀▀░▀█▀░█▀▀░█░█{end}
-{header}░█░█░█▀▀░▄▀▄░█░█░█▀█░░█░░█▀█░█▀▀░█▀▀░░█░░█░░░█▀█{end}
-{header}░▀░▀░▀▀▀░▀░▀░▀▀░░▀░░▀░▀░▀░░░▀▀▀░░▀░░▀▀▀░▀░▀{end}
-'''.format(header=TerminalColors.CYAN, end=TerminalColors.END)
+# ASCII art with fire-like colors
+BANNER = f'''
+{TerminalColors.RED}             )          (                   (                      
+          ( /(          )\ )          )     )\ )        )       )  
+           )\())  (    )(()/(     ) ( /(   )(()/(  (  ( /(    ( /(  
+           ((_)\  ))\( /( /(_)) ( /( )\()| /( /(_))))\ )\())(  )\()) 
+            _((_)/((_)\()|_))_  )(_)|_))/)(_)|_))_/((_|_))/ )\((_)\  
+           | \| (_))((_)\ |   \((_)_| |_((_)_| |_(_)) | |_ ((_) |(_) 
+           | .` / -_) \ / | |) / _` |  _/ _` | __/ -_)|  _/ _|| ' \  
+           |_|\_\___/_\_\ |___/\__,_|\__\__,_|_| \___| \__\__||_||_| 
+                                                                      
+{TerminalColors.END}
+'''
 
-# Functions and code from the provided script (excluding the ASCII art and colors)
+print(BANNER)
 
 # Incorporating the banner
 def print_banner():
@@ -97,36 +101,45 @@ def download_stream_with_progress(url, index, progress_callback):
 
 def download_highest_quality(video_url, video_format, audio_format, output_dir="."):
     try:
+        print("Starting download process...")
         video_src, audio_src, metadata = get_video_info(video_url)
-        video_formats = metadata["video_formats"]
-        audio_formats = metadata["audio_formats"]
+        print("Retrieved video info successfully.")
 
-        if video_format not in video_formats or audio_format not in audio_formats:
-            raise ValueError("Invalid video or audio format selected")
+        if metadata:
+            video_formats = metadata.get("video_formats")
+            audio_formats = metadata.get("audio_formats")
 
-        def progress_callback(downloaded, total_size):
-            if total_size > 0:
-                percentage = (downloaded / total_size) * 100
-                print(f"Downloading... {percentage:.2f}%")
+            if video_formats and audio_formats:
+                if video_format not in video_formats or audio_format not in audio_formats:
+                    raise ValueError("Invalid video or audio format selected")
 
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            video_future = executor.submit(download_stream_with_progress, video_src, video_formats.index(video_format), progress_callback)
-            audio_future = executor.submit(download_stream_with_progress, audio_src, audio_formats.index(audio_format), progress_callback)
+                def progress_callback(downloaded, total_size):
+                    if total_size > 0:
+                        percentage = (downloaded / total_size) * 100
+                        print(f"Downloading... {percentage:.2f}%")
 
-            highest_resolution_video = video_future.result()
-            highest_bitrate_audio = audio_future.result()
+                with ThreadPoolExecutor(max_workers=2) as executor:
+                    video_future = executor.submit(download_stream_with_progress, video_src, video_formats.index(video_format), progress_callback)
+                    audio_future = executor.submit(download_stream_with_progress, audio_src, audio_formats.index(audio_format), progress_callback)
 
-        video_filename = f"{metadata['title']}_{video_format}_video.{video_format}"
-        audio_filename = f"{metadata['title']}_{audio_format}_audio.{audio_format}"
+                    highest_resolution_video = video_future.result()
+                    highest_bitrate_audio = audio_future.result()
 
-        video_filepath = os.path.join(output_dir, video_filename)
-        audio_filepath = os.path.join(output_dir, audio_filename)
+                video_filename = f"{metadata['title']}_{video_format}_video.{video_format}"
+                audio_filename = f"{metadata['title']}_{audio_format}_audio.{audio_format}"
 
-        write_to_file(highest_resolution_video, video_filepath)
-        write_to_file(highest_bitrate_audio, audio_filepath)
+                video_filepath = os.path.join(output_dir, video_filename)
+                audio_filepath = os.path.join(output_dir, audio_filename)
 
-        logging.info("Download and processing completed successfully!")
+                write_to_file(highest_resolution_video, video_filepath)
+                write_to_file(highest_bitrate_audio, audio_filepath)
 
+                logging.info("Download and processing completed successfully!")
+            else:
+                print("Missing video or audio formats in metadata.")
+        else:
+            print("No metadata retrieved for the video.")
+        
     except ValueError as ve:
         logging.error(f"Value Error: {ve}")
     except Exception as e:
@@ -134,14 +147,10 @@ def download_highest_quality(video_url, video_format, audio_format, output_dir="
     finally:
         if os.path.exists('temp_file.tmp'):
             os.remove('temp_file.tmp')
-
-def download_batch_videos(video_urls, video_format, audio_format, output_dir="."):
-    for url in video_urls:
-        download_highest_quality(url, video_format, audio_format, output_dir)
-
+            
 def setup_cli():
     parser = argparse.ArgumentParser(description='Download and process highest quality video and audio streams.')
-    parser.add_argument('--video_url', nargs='+', type=str, help='URLs of the videos')
+    parser.add_argument('--video_url', type=str, help='URL of the video')
     parser.add_argument('--video_format', type=str, help='Desired video format')
     parser.add_argument('--audio_format', type=str, help='Desired audio format')
     parser.add_argument('--output_dir', type=str, default=".", help='Output directory for downloaded files')
@@ -151,9 +160,9 @@ def main():
     args = setup_cli()
 
     if args.video_url:
-        download_batch_videos(args.video_url, args.video_format, args.audio_format, args.output_dir)
-    else:
         download_highest_quality(args.video_url, args.video_format, args.audio_format, args.output_dir)
+    else:
+        print("Please provide a video URL.")
 
 if __name__ == "__main__":
     main()

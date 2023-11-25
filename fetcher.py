@@ -37,9 +37,6 @@ def print_success(message):
 def print_error(message):
     print(f"{TerminalColors.HEADER}{message}{TerminalColors.END}")
 
-# Modify existing functions to use UI messages
-# ...
-
 logging.basicConfig(filename='app.log', level=logging.INFO)
 
 def get_video_info(video_url):

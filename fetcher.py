@@ -26,8 +26,6 @@ BANNER = f'''
 {TerminalColors.END}
 '''
 
-print(BANNER)
-
 # Incorporating the banner
 def print_banner():
     print(BANNER)
